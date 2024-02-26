@@ -1,7 +1,7 @@
 # run bash commands to compile and run the program
 
 dev:
-	sh bahscript.sh
+	sh ./bahscript.sh
 
 test:
 	go test -v ./...
