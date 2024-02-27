@@ -4,10 +4,11 @@ this one should be the template of the Golang project
 
 # TODO
 
-* setup goose
-* setup docker
-* setup bashscript to run the project
-* setup ci and cd
+- [x] setup goose
+- [ ] setup docker
+- [x] setup bashscript to run the project
+- [x] setup ci [configurable]
+- [ ] setup cd [configurable]
 
 # Create new SQL file to execute your DDL or DML
 

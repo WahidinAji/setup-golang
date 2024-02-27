@@ -15,7 +15,7 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    container: golang:1.21-bookworm
+    container: golang:1.22-bookworm
     defaults:
       run:
         working-directory: ./
