@@ -1,1 +1,56 @@
 # this ci file is for github actions to run your continuous integration
+
+name: continuous-integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container: golang:1.21-bookworm
+    defaults:
+      run:
+        working-directory: ./
+
+    services:
+      db:
+        image: postgres:15-bookworm
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: secret
+          POSTGRES_USER: postgres
+          POSTGRES_DB: invitation
+        options: >-
+          --health-cmd "pg_isready -U postgres -d invitation"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+
+      - name: Run test & coverage
+        run: go test -v -coverprofile=coverage.out -covermode=atomic ./...
+        env:
+          TZ: UTC
+          DATABASE_URL: postgres://postgres:secret@db:5432/invitation?sslmode=disable
+
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
