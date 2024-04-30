@@ -16,8 +16,8 @@ func main() {
 
 	//ctx := context.Background()
 
-	config := getConfig()
+	config := getConfig("config.yaml")
 	if config.Environment == "development" {
-		log.Info().Msgf("Environment: %s", config)
+		log.Info().Msgf("Environment: %v", config)
 	}
 }

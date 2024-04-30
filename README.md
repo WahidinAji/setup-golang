@@ -9,6 +9,9 @@ this one should be the template of the Golang project
 - [x] setup bashscript to run the project
 - [x] setup ci [configurable]
 - [ ] setup cd [configurable]
+- [ ] setup Sentry [configurable]
+- [ ] Error Wrapper
+
 
 # Create new SQL file to execute your DDL or DML
 

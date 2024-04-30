@@ -4,28 +4,32 @@ import (
 	"os"
 
 	"github.com/rs/zerolog/log"
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
 	Sentry struct {
-		DSN string
+		DSN   string `yaml:"sentry_dsn"`
+		Debug bool   `yaml:"sentry_debug"`
 	}
 	Database struct {
-		Name     string
-		User     string
-		Password string
-		Host     string
-		Port     string
+		Name     string `yaml:"db_name"`
+		User     string `yaml:"db_user"`
+		Password string `yaml:"db_password"`
+		Host     string `yaml:"db_host"`
+		Port     string `yaml:"db_post"`
 	}
-	Environment    string
-	Release        string
-	Port           string
-	SecretPassword string
+	Environment    string `yaml:"environment"`
+	Release        string `yaml:"release"`
+	Port           string `yaml:"port"`
+	SecretPassword string `yaml:"password_secret"`
 	Cors           struct {
-		AllowOrigins []string
-		AllowMethods []string
-		AllowHeaders []string
+		AllowOrigins string `yaml:"cors_allow_origins"`
+		AllowMethods string `yaml:"cors_allow_methods"`
+		AllowHeaders string `yaml:"cors_allow_headers"`
 	}
+
+	//add more below
 }
 
 type DefaultSettings struct {
@@ -33,7 +37,25 @@ type DefaultSettings struct {
 	Default bool
 }
 
-func getConfig() (config Config) {
+func getConfig(configFile string) (config Config) {
+
+	if configFile != "" {
+		file, err := os.Open(configFile)
+		if err != nil {
+			log.Fatal().Msgf("Error opening config file: %v", err)
+		}
+		defer func() {
+			if err := file.Close(); err != nil {
+				log.Fatal().Err(err).Msg("Failed to close config file")
+			}
+		}()
+
+		err = yaml.NewDecoder(file).Decode(&config)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to decode config file")
+		}
+	}
+
 	var defaultSettings []DefaultSettings
 	dsn, ok := os.LookupEnv("SENTRY_DSN")
 	if !ok {
@@ -88,7 +110,7 @@ func getConfig() (config Config) {
 
 	corsAllowOrigins, ok := os.LookupEnv("CORS_ALLOW_ORIGINS")
 	if !ok {
-		corsAllowOrigins = "*"
+		corsAllowOrigins = "http:localhost:3000,http:localhost:8080"
 		defaultSettings = append(defaultSettings, DefaultSettings{"CORS_ALLOW_ORIGINS", true})
 	}
 
@@ -118,8 +140,8 @@ func getConfig() (config Config) {
 	config.Release = release
 	config.Port = port
 	config.SecretPassword = secretPassword
-	config.Cors.AllowOrigins = []string{corsAllowOrigins}
-	config.Cors.AllowMethods = []string{corsAllowMethods}
-	config.Cors.AllowHeaders = []string{corsAllowHeaders}
+	config.Cors.AllowOrigins = corsAllowOrigins
+	config.Cors.AllowMethods = corsAllowMethods
+	config.Cors.AllowHeaders = corsAllowHeaders
 	return
 }
